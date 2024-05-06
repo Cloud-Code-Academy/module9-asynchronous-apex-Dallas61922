@@ -34,16 +34,27 @@ public with sharing class AsynchronousTest {
             testAccounts.add(new Account(Name = 'Test Account ' + i));
         }
         insert testAccounts;
+        //Dallas added below code
+        List<Id> oppAcctIds= new List<Id>();
+        for (Account acc : testAccounts){
+            oppAcctIds.add(acc.Id);
+        }
+        //Dallas added above code
 
         List<Opportunity> testOpps = new List<Opportunity>();
         for (Account acc : testAccounts) {
             testOpps.add(new Opportunity(Name = 'Test Opp for ' + acc.Name, AccountId = acc.Id, CloseDate = Date.today(), StageName = 'Prospecting'));
         }
         insert testOpps;
-
+        //Dallas added below code
+        List<Id> oppIds= new List<Id>();
+        for (Opportunity opp : testOpps){
+            oppAcctIds.add(opp.Id);
+        }
+        //Dallas added above code
         // Call the method to test between the startTest and stopTest methods
         Test.startTest();
-        //YOUR CODE HERE
+        NextStepFuture.setNextStep(oppAcctIds);
         Test.stopTest();
 
         // Query the updated accounts and opportunities
@@ -64,7 +75,8 @@ public with sharing class AsynchronousTest {
     @IsTest
     static void nextStepFuture_testCreateDealAndUpdateRole() {        
         Test.startTest();
-        NextStepFuture.createDealAndUpdateRole();
+        Opportunity newOpp = new Opportunity();
+        NextStepFuture.createDealAndUpdateRole(newOpp);
         Test.stopTest();
 
         // Due to the Mixed DML error, we need to test the insertBigDeal method

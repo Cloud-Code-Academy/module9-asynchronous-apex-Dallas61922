@@ -19,7 +19,7 @@
  */
 public with sharing class NextStepFuture {
 
-    /* 
+    /* Test passed
      * Question 1
      * Update/Uncomment the template code to create a method
      * Create a future method that updates all account and opportunities next step to 'Meeting in the future'
@@ -27,27 +27,49 @@ public with sharing class NextStepFuture {
      * Opportunity Next Step field is a standard field
      * Update the corresponding test class AsynchronousTest and test method nextStepFuture_testUpdateAllNextStep to cover test this method
      */
-    //[public | private ] [static] data_type method_name (input parameters) {
-    //  The body of the method
-    //}
+    @future
+    public static void setNextStep (List<Id> oppacctIds) {
+        List<Opportunity> listOfOpps = [SELECT Id, Name, NextStep 
+                                        FROM Opportunity
+                                        WHERE Id IN :oppacctIds];
+        List<Account> listOfAccts = [SELECT Id, Name, Next_Step__c
+                                    FROM Account
+                                    WHERE Id IN :oppacctIds];
+        For (Opportunity opp : listOfOpps){
+            opp.NextStep = 'Meeting in the future';
+        }     
+        For (Account acc : listOfAccts){
+            acc.Next_Step__c = 'Meeting in the future';
+        }
+        Update listOfOpps;
+        Update listOfAccts;                           
+    }
 
-    /*
+    /*Test Passed
     * Question 2
     * Update/Uncomment the template code to create a method
     * Create a method that inserts a big deal opportunity and updates the user role name to 'CRO'
     * Update the corresponding test class AsynchronousTest and test method nextStepFuture_testCreateDealAndUpdateRole to cover test this method
     */
     //Mix DML Error happens when you try to perform DML operations on setup and non-setup objects in a single transaction.
-    public static void createDealAndUpdateRole() {
+
+    //This test passed but I'm a little confused on what I'm supposed to be passing into this method. I have a "newOpp" passing in but doing nothing with it beyond that, the rest of the method kind of runs itself and has nothing to do with the newOpp I created
+    public static void createDealAndUpdateRole(Opportunity newOpp) {
         Opportunity bigDeal = new Opportunity();
         insertBigDeal(bigDeal);
 
         UserRole[] roles = [SELECT Id, Name FROM UserRole WHERE Id = :UserInfo.getUserRoleId() OR Name = 'CRO' LIMIT 1];
-        updateUserRoleName(roles);
+        System.debug('Roles are ' + roles);
+        List<String> roleStrings = new List<String>();
+        For (UserRole role : roles){
+            System.debug('Iterating over roles ' + role);
+            roleStrings.add((string)role.Id);
+        }
+        updateUserRoleName(roleStrings);
     }
 
     // Helper method to insert big deal
-    private static void insertBigDeal(Opportunity opp) {
+    public static void insertBigDeal(Opportunity opp) {
         opp.Amount = 1000000;
         opp.Name = 'Big Deal';
         opp.StageName = 'Closed Won'; 
@@ -58,15 +80,17 @@ public with sharing class NextStepFuture {
 
 
     // Helper method to update role name
-    private static void updateUserRoleName(UserRole[] roles){
+    @future
+    public static void updateUserRoleName(List<String> roleStrings){
+        List<UserRole> initialRole = [SELECT Id, Name FROM UserRole WHERE Id IN :roleStrings];
         UserRole role;
-        if (roles.isEmpty()) {
+        if (initialRole.isEmpty()) {
             role = new UserRole();
             role.portalType = 'None'; 
             role.CaseAccessForAccountOwner = 'Edit'; 
             // role.OpportunityAccessForAccountOwner = 'Edit'; //This may need to be uncommented depending on your orgs Organization Wide Defaults(OWD) settings. If you are receiving FIELD_INTEGRITY_EXCEPTION, field integrity exception: unknown (Opportunity access level below organization default): [unknown], uncomment this line.
         } else {
-            role = roles[0];
+            role = initialRole[0];
         }
 
         role.Name = 'CRO';
