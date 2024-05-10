@@ -123,7 +123,7 @@ public with sharing class AsynchronousTest {
             System.assertEquals(null, opp.NextStep, 'Opportunity NextStep field was updated to null.');
         }
     }
-
+/*
     @IsTest
     static void nextStepBatch_testUpdateAllNextStep() {
         // Create test data

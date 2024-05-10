@@ -74,6 +74,7 @@ public with sharing class NextStepFuture {
         opp.Name = 'Big Deal';
         opp.StageName = 'Closed Won'; 
         opp.CloseDate = Date.today();
+        System.debug('New opp info' + opp);
         
         insert opp;
     }
@@ -85,16 +86,18 @@ public with sharing class NextStepFuture {
         List<UserRole> initialRole = [SELECT Id, Name FROM UserRole WHERE Id IN :roleStrings];
         UserRole role;
         if (initialRole.isEmpty()) {
+            System.debug('Role list is empty');
             role = new UserRole();
             role.portalType = 'None'; 
             role.CaseAccessForAccountOwner = 'Edit'; 
+            System.debug('New role is ' + role);
             // role.OpportunityAccessForAccountOwner = 'Edit'; //This may need to be uncommented depending on your orgs Organization Wide Defaults(OWD) settings. If you are receiving FIELD_INTEGRITY_EXCEPTION, field integrity exception: unknown (Opportunity access level below organization default): [unknown], uncomment this line.
         } else {
             role = initialRole[0];
         }
 
         role.Name = 'CRO';
-
+        System.debug('New role name is ' + role.Name);
         upsert role;
     }
 }
