@@ -5,4 +5,5 @@
 // You can also execute the entire file by running the command:
 //     SFDX: Execute Anonymous Apex with Editor Contents
 
-NextStepQueueable.enqueueJob();
+NextStepBatch batch = new NextStepBatch();
+Id batchId = Database.executeBatch(batch);
